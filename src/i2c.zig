@@ -43,14 +43,12 @@ pub fn initWithFrequency(comptime clock_hz: comptime_int) void {
 }
 
 pub fn probe(address: u7) bool {
-    if (!sendStart()) {
-        sendStop();
+    if (!startWrite(address)) {
         return false;
     }
 
-    const status = writeByte(@as(u8, address) << 1);
-    sendStop();
-    return status == 0x18;
+    stop();
+    return true;
 }
 
 pub fn scan(comptime on_found: fn (u7) void) usize {
@@ -65,6 +63,46 @@ pub fn scan(comptime on_found: fn (u7) void) usize {
     }
 
     return count;
+}
+
+pub fn startWrite(address: u7) bool {
+    if (!sendStart()) {
+        sendStop();
+        return false;
+    }
+
+    const status = writeByte(@as(u8, address) << 1);
+    if (status != 0x18) {
+        sendStop();
+        return false;
+    }
+
+    return true;
+}
+
+pub fn writeData(byte: u8) bool {
+    return writeByte(byte) == 0x28;
+}
+
+pub fn write(address: u7, bytes: []const u8) bool {
+    if (!startWrite(address)) {
+        return false;
+    }
+
+    var index: usize = 0;
+    while (index < bytes.len) : (index += 1) {
+        if (!writeData(bytes[index])) {
+            stop();
+            return false;
+        }
+    }
+
+    stop();
+    return true;
+}
+
+pub fn stop() void {
+    sendStop();
 }
 
 fn sendStart() bool {

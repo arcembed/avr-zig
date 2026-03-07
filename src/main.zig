@@ -1,10 +1,14 @@
 const uart = @import("uart.zig");
 const gpio = @import("gpio.zig");
 const i2c = @import("i2c.zig");
+const ssd1306 = @import("ssd1306.zig");
 const uno = @import("uno.zig");
+
+const Display128x64 = ssd1306.Display(128, 64);
 
 // This is put in the data section
 var ch: u8 = '!';
+var display: Display128x64 = .{};
 
 // This ends up in the bss section
 var bss_stuff: [9]u8 = .{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -23,6 +27,7 @@ pub fn main() void {
 
     i2c.init();
     scanI2cBus();
+    initDisplay();
 
     if (bss_stuff[0] == 0)
         uart.write("Ahh its actually zero!\r\n");
@@ -48,6 +53,28 @@ pub fn main() void {
         gpio.toggle(.D13);
         gpio.toggle(.A0);
         uno.sleep(500);
+    }
+}
+
+fn initDisplay() void {
+    if (!display.init()) {
+        uart.write("SSD1306 init failed\r\n");
+        return;
+    }
+
+    display.clear(.off);
+    display.drawPixel(64, 32, .on);
+    display.drawLine(0, 0, 127, 63, .on);
+    display.drawLine(0, 63, 127, 0, .on);
+    display.drawLine(0, 0, 127, 0, .on);
+    display.drawLine(0, 63, 127, 63, .on);
+    display.drawLine(0, 0, 0, 63, .on);
+    display.drawLine(127, 0, 127, 63, .on);
+
+    if (display.present()) {
+        uart.write("SSD1306 demo drawn\r\n");
+    } else {
+        uart.write("SSD1306 update failed\r\n");
     }
 }
 
