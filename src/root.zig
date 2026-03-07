@@ -22,6 +22,7 @@ pub const drivers = struct {
 
     pub const sensor = struct {
         pub const dht11 = @import("drivers/sensor/dht11.zig");
+        pub const hc_sr04 = @import("drivers/sensor/hc_sr04.zig");
     };
 };
 
@@ -37,4 +38,5 @@ pub const time = hal.time;
 pub const uart = hal.uart;
 pub const uno = board.uno;
 pub const dht11 = drivers.sensor.dht11;
+pub const hc_sr04 = drivers.sensor.hc_sr04;
 pub const ssd1306 = drivers.display.ssd1306;

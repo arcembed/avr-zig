@@ -9,6 +9,7 @@ Available examples:
 - `button`
 - `custom-hooks`
 - `dht11`
+- `hc-sr04`
 - `i2c-scan`
 - `pwm-fade`
 - `pwm-rgb`

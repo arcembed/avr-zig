@@ -29,4 +29,4 @@ Timer-backed helpers such as `avr.hal.time.sleep()` automatically provide their 
 
 See the example projects in `examples/` for complete build scripts, linker setup, and flashing commands.
 
-Input handling is split between `avr.hal.gpio` for digital pins and `avr.hal.adc` for blocking 10-bit reads on A0-A5. The repository examples include digital button input, analog input sampling, and DHT11 sensor polling.
+Input handling is split between `avr.hal.gpio` for digital pins and `avr.hal.adc` for blocking 10-bit reads on A0-A5. The repository examples include digital button input, analog input sampling, DHT11 sensor polling, and more.
