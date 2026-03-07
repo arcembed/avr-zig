@@ -1,5 +1,5 @@
 const avr = @import("avr_zig");
-const dht11 = avr.dht11;
+const dht11 = avr.drivers.sensor.dht11;
 const time = avr.time;
 const uart = avr.uart;
 

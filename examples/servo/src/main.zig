@@ -1,5 +1,5 @@
 const avr = @import("avr_zig");
-const servo = avr.servo;
+const servo = avr.drivers.actuator.servo;
 const time = avr.time;
 
 const positions = [_]u8{ 0, 90, 180, 90 };
