@@ -7,6 +7,7 @@ pub const board = struct {
 };
 
 pub const hal = struct {
+    pub const adc = @import("hal/adc.zig");
     pub const gpio = @import("hal/gpio.zig");
     pub const i2c = @import("hal/i2c.zig");
     pub const pwm = @import("hal/pwm.zig");
@@ -18,16 +19,22 @@ pub const drivers = struct {
     pub const display = struct {
         pub const ssd1306 = @import("drivers/display/ssd1306.zig");
     };
+
+    pub const sensor = struct {
+        pub const dht11 = @import("drivers/sensor/dht11.zig");
+    };
 };
 
 pub const runtime = struct {
     pub const Entry = @import("runtime/entry.zig").Entry;
 };
 
+pub const adc = hal.adc;
 pub const gpio = hal.gpio;
 pub const i2c = hal.i2c;
 pub const pwm = hal.pwm;
 pub const time = hal.time;
 pub const uart = hal.uart;
 pub const uno = board.uno;
+pub const dht11 = drivers.sensor.dht11;
 pub const ssd1306 = drivers.display.ssd1306;

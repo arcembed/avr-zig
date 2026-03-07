@@ -4,8 +4,11 @@ Each example is a standalone Zig project that depends on the root `avr_zig` pack
 
 Available examples:
 
+- `analog-input`
 - `blink`
+- `button`
 - `custom-hooks`
+- `dht11`
 - `i2c-scan`
 - `pwm-fade`
 - `pwm-rgb`
