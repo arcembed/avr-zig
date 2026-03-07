@@ -3,12 +3,6 @@ const i2c = avr.hal.i2c;
 const time = avr.hal.time;
 const uart = avr.hal.uart;
 
-pub const interrupts = struct {
-    pub fn TIMER0_COMPA() void {
-        time.handleTimer0CompareA();
-    }
-};
-
 pub fn main() void {
     uart.init(115200);
     i2c.init();

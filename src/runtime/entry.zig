@@ -1,7 +1,47 @@
 const std = @import("std");
 const builtin = std.builtin;
 const atmega328p = @import("../mcu/atmega328p.zig");
+const time = @import("../hal/time.zig");
 const uart = @import("../hal/uart.zig");
+
+fn validateInterruptNamespace(comptime Namespace: type, comptime namespace_name: []const u8) void {
+    if (@hasDecl(Namespace, "RESET")) {
+        @compileError("Not allowed to overload the reset vector in '" ++ namespace_name ++ "'");
+    }
+
+    for (std.meta.declarations(Namespace)) |decl| {
+        if (!@hasField(atmega328p.VectorTable, decl.name)) {
+            var msg: []const u8 = "There is no such interrupt as '" ++ decl.name ++ "'. ISRs in '" ++ namespace_name ++ "' must be one of:\n";
+            for (std.meta.fields(atmega328p.VectorTable)) |field| {
+                if (!std.mem.eql(u8, "RESET", field.name)) {
+                    msg = msg ++ "    " ++ field.name ++ "\n";
+                }
+            }
+
+            @compileError(msg);
+        }
+    }
+}
+
+fn exportInterruptHandler(comptime Namespace: type, comptime name: []const u8) void {
+    const handler = @field(Namespace, name);
+    const calling_convention = switch (@typeInfo(@TypeOf(handler))) {
+        .@"fn" => |info| info.calling_convention,
+        else => @compileError("Declarations in the interrupt namespace must all be functions. '" ++ name ++ "' is not a function"),
+    };
+
+    const exported_fn = switch (calling_convention) {
+        .auto => struct {
+            fn wrapper() callconv(.avr_interrupt) void {
+                @call(.always_inline, handler, .{});
+            }
+        }.wrapper,
+        else => @compileError("Leave interrupt handlers with an unspecified calling convention"),
+    };
+
+    const options: builtin.ExportOptions = .{ .name = name, .linkage = .strong };
+    @export(&exported_fn, options);
+}
 
 pub fn Entry(comptime App: type) type {
     comptime {
@@ -16,50 +56,30 @@ pub fn Entry(comptime App: type) type {
 
             var asm_str: []const u8 = ".section .vectors\njmp _start\n";
             const has_interrupts = @hasDecl(App, "interrupts");
+            const runtime_interrupts = time.runtime_interrupts;
+
+            validateInterruptNamespace(runtime_interrupts, "runtime_interrupts");
 
             if (has_interrupts) {
-                if (@hasDecl(App.interrupts, "RESET")) {
-                    @compileError("Not allowed to overload the reset vector");
-                }
-
-                for (std.meta.declarations(App.interrupts)) |decl| {
-                    if (!@hasField(atmega328p.VectorTable, decl.name)) {
-                        var msg: []const u8 = "There is no such interrupt as '" ++ decl.name ++ "'. ISRs in the 'interrupts' namespace must be one of:\n";
-                        for (std.meta.fields(atmega328p.VectorTable)) |field| {
-                            if (!std.mem.eql(u8, "RESET", field.name)) {
-                                msg = msg ++ "    " ++ field.name ++ "\n";
-                            }
-                        }
-
-                        @compileError(msg);
-                    }
-                }
+                validateInterruptNamespace(App.interrupts, "interrupts");
             }
 
             for (std.meta.fields(atmega328p.VectorTable)[1..]) |field| {
                 const new_instruction = if (has_interrupts) overload: {
                     if (@hasDecl(App.interrupts, field.name)) {
-                        const handler = @field(App.interrupts, field.name);
-                        const calling_convention = switch (@typeInfo(@TypeOf(handler))) {
-                            .@"fn" => |info| info.calling_convention,
-                            else => @compileError("Declarations in the 'interrupts' namespace must all be functions. '" ++ field.name ++ "' is not a function"),
-                        };
-
-                        const exported_fn = switch (calling_convention) {
-                            .auto => struct {
-                                fn wrapper() callconv(.avr_interrupt) void {
-                                    @call(.always_inline, handler, .{});
-                                }
-                            }.wrapper,
-                            else => @compileError("Leave interrupt handlers with an unspecified calling convention"),
-                        };
-
-                        const options: builtin.ExportOptions = .{ .name = field.name, .linkage = .strong };
-                        @export(&exported_fn, options);
+                        exportInterruptHandler(App.interrupts, field.name);
                         break :overload "jmp " ++ field.name;
-                    } else {
-                        break :overload "jmp _unhandled_vector";
                     }
+
+                    if (@hasDecl(runtime_interrupts, field.name)) {
+                        exportInterruptHandler(runtime_interrupts, field.name);
+                        break :overload "jmp " ++ field.name;
+                    }
+
+                    break :overload "jmp _unhandled_vector";
+                } else if (@hasDecl(runtime_interrupts, field.name)) runtime_default: {
+                    exportInterruptHandler(runtime_interrupts, field.name);
+                    break :runtime_default "jmp " ++ field.name;
                 } else "jmp _unhandled_vector";
 
                 asm_str = asm_str ++ new_instruction ++ "\n";

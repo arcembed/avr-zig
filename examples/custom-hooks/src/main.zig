@@ -11,12 +11,6 @@ const DemoMode = enum {
 
 const demo_mode: DemoMode = .panic;
 
-pub const interrupts = struct {
-    pub fn TIMER0_COMPA() void {
-        time.handleTimer0CompareA();
-    }
-};
-
 pub fn main() void {
     uart.init(115200);
     gpio.init(.D13, .out);

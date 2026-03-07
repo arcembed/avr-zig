@@ -19,17 +19,12 @@ Add this repository as a dependency, make `avr_zig`'s runtime bootstrap the exec
 
 ```zig
 const avr = @import("avr_zig");
-const time = avr.hal.time;
-
-pub const interrupts = struct {
-    pub fn TIMER0_COMPA() void {
-        time.handleTimer0CompareA();
-    }
-};
 
 pub fn main() void {
     // Application code here.
 }
 ```
+
+Timer-backed helpers such as `avr.hal.time.sleep()` automatically provide their default interrupt handlers. Advanced applications can still override `pub const interrupts.TIMER0_COMPA()` explicitly when they need custom Timer0 behavior.
 
 See the example projects in `examples/` for complete build scripts, linker setup, and flashing commands.

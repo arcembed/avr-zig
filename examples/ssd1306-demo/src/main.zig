@@ -10,12 +10,6 @@ const Display128x64 = ssd1306.Display(128, 64);
 var current: u8 = '!';
 var display: Display128x64 = .{};
 
-pub const interrupts = struct {
-    pub fn TIMER0_COMPA() void {
-        time.handleTimer0CompareA();
-    }
-};
-
 pub fn main() void {
     uart.init(115200);
     i2c.init();

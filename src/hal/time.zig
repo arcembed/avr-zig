@@ -22,6 +22,12 @@ const SleepMode = enum(u3) {
 var timer0_initialized = false;
 var tick_ms: u32 = 0;
 
+pub const runtime_interrupts = struct {
+    pub fn TIMER0_COMPA() void {
+        handleTimer0CompareA();
+    }
+};
+
 pub fn sleep(ms: u32) void {
     if (ms == 0) return;
 
