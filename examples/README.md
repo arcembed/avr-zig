@@ -14,5 +14,6 @@ Available examples:
 - `lcd-1602-i2c`
 - `pwm-fade`
 - `pwm-rgb`
+- `servo`
 - `ssd1306-demo`
 - `uart`

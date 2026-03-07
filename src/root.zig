@@ -16,6 +16,10 @@ pub const hal = struct {
 };
 
 pub const drivers = struct {
+    pub const actuator = struct {
+        pub const servo = @import("drivers/actuator/servo.zig");
+    };
+
     pub const display = struct {
         pub const hd44780_i2c = @import("drivers/display/hd44780_i2c.zig");
         pub const ssd1306 = @import("drivers/display/ssd1306.zig");
@@ -35,6 +39,7 @@ pub const adc = hal.adc;
 pub const gpio = hal.gpio;
 pub const i2c = hal.i2c;
 pub const pwm = hal.pwm;
+pub const servo = drivers.actuator.servo;
 pub const time = hal.time;
 pub const uart = hal.uart;
 pub const uno = board.uno;

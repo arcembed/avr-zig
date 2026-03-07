@@ -1,4 +1,5 @@
 const gpio = @import("../../hal/gpio.zig");
+const servo = @import("../actuator/servo.zig");
 const regs = @import("../../mcu/atmega328p.zig").registers;
 const uno = @import("../../board/uno.zig");
 
@@ -12,6 +13,7 @@ const timer1_clock_select = 0b010;
 pub const Error = error{
     EchoStartTimeout,
     EchoEndTimeout,
+    Timer1Unavailable,
 };
 
 pub const Reading = struct {
@@ -30,6 +32,10 @@ pub fn init(comptime echo_pin: gpio.Pin, comptime trig_pin: gpio.Pin) void {
 
 pub fn read(comptime echo_pin: gpio.Pin, comptime trig_pin: gpio.Pin) Error!Reading {
     init(echo_pin, trig_pin);
+    if (servo.isActive()) {
+        return error.Timer1Unavailable;
+    }
+
     const timer1_state = saveTimer1State();
     defer restoreTimer1State(timer1_state);
 
