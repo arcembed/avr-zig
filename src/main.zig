@@ -1,5 +1,6 @@
 const uart = @import("uart.zig");
 const gpio = @import("gpio.zig");
+const uno = @import("uno.zig");
 
 // This is put in the data section
 var ch: u8 = '!';
@@ -11,8 +12,9 @@ var bss_stuff: [9]u8 = .{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 // interrupt handlers. If you name one incorrectly you'll get a compiler error
 // with the full list of options.
 pub const interrupts = struct {
-    // Pin Change Interrupt Source 0
-    // pub fn PCINT0() void {}
+    pub fn TIMER0_COMPA() void {
+        uno.handleTimer0CompareA();
+    }
 };
 
 pub fn main() void {
@@ -28,11 +30,6 @@ pub fn main() void {
     }
     uart.write(&bss_stuff);
 
-    // This will actually call our panic handler in start.zig when
-    // uncommented.
-    // var x: u8 = 255;
-    // x += 1;
-
     gpio.init(.D13, .out);
     gpio.init(.D5, .out);
 
@@ -47,13 +44,6 @@ pub fn main() void {
 
         gpio.toggle(.D13);
         gpio.toggle(.D5);
-        delay_cycles(50000);
-    }
-}
-
-fn delay_cycles(cycles: u32) void {
-    var count: u32 = 0;
-    while (count < cycles) : (count += 1) {
-        asm volatile ("nop");
+        uno.sleep(500);
     }
 }

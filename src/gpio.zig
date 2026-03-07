@@ -7,7 +7,7 @@ fn init_portb(pin: u3, comptime dir: MODE) void {
     regs.PORTB.DDRB.* = @as(u8, @intFromEnum(dir)) << pin;
 }
 
-pub fn toggle_portb(comptime pin: u3) void {
+fn toggle_portb(comptime pin: u3) void {
     var val = regs.PORTB.PORTB.*;
     val ^= 1 << pin;
     regs.PORTB.PORTB.* = val;
@@ -18,7 +18,7 @@ fn init_portd(pin: u3, comptime dir: MODE) void {
     regs.PORTD.DDRD.* = @as(u8, @intFromEnum(dir)) << pin;
 }
 
-pub fn toggle_portd(comptime pin: u3) void {
+fn toggle_portd(comptime pin: u3) void {
     var val = regs.PORTD.PORTD.*;
     val ^= 1 << pin;
     regs.PORTD.PORTD.* = val;

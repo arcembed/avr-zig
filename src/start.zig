@@ -38,16 +38,15 @@ comptime {
 
                 const exported_fn = switch (calling_convention) {
                     .auto => struct {
-                        fn wrapper() callconv(.c) void {
-                            //if (calling_convention == .Unspecified) // TODO: workaround for some weird stage1 bug
-                            @call(.{ .modifier = .always_inline }, handler, .{});
+                        fn wrapper() callconv(.avr_interrupt) void {
+                            @call(.always_inline, handler, .{});
                         }
                     }.wrapper,
                     else => @compileError("Just leave interrupt handlers with an unspecified calling convention"),
                 };
 
-                const options = .{ .name = field.name, .linkage = .Strong };
-                @export(exported_fn, options);
+                const options: builtin.ExportOptions = .{ .name = field.name, .linkage = .strong };
+                @export(&exported_fn, options);
                 break :overload "jmp " ++ field.name;
             } else {
                 break :overload "jmp _unhandled_vector";
