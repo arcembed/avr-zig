@@ -1,3 +1,5 @@
+## THIS PROJECT HAS MIGRATED TO [CODEBERG](https://codeberg.org/jotrorox/avr-zig) ##
+
 # avr_zig
 
 `avr_zig` is a Zig library for bare-metal Arduino Uno projects on the ATmega328P.
