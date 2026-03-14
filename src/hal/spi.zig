@@ -1,9 +1,6 @@
-const regs = @import("../mcu/atmega328p.zig").registers;
-
-const ss_mask = @as(u8, 1 << 2);
-const mosi_mask = @as(u8, 1 << 3);
-const miso_mask = @as(u8, 1 << 4);
-const sck_mask = @as(u8, 1 << 5);
+const gpio = @import("gpio.zig");
+const platform = @import("../platform/current.zig");
+const regs = platform.registers;
 
 pub const ClockDiv = enum {
     f2,
@@ -17,12 +14,14 @@ pub const ClockDiv = enum {
 
 /// Initializes SPI master mode.
 pub fn init(comptime clock_div: ClockDiv) void {
-    regs.PORTB.DDRB.* |= ss_mask | mosi_mask | sck_mask;
-    regs.PORTB.DDRB.* &= ~miso_mask;
+    gpio.init(platform.spi_pins.ss, .out);
+    gpio.init(platform.spi_pins.mosi, .out);
+    gpio.init(platform.spi_pins.sck, .out);
+    gpio.init(platform.spi_pins.miso, .in);
 
     // Keeping the hardware SS pin as an output prevents the AVR from
-    // dropping back into slave mode while the MFRC522 uses D10 as chip select.
-    regs.PORTB.PORTB.* |= ss_mask;
+    // dropping back into slave mode while the MFRC522 uses a separate chip select pin.
+    gpio.write(platform.spi_pins.ss, true);
 
     const config = divConfig(clock_div);
     regs.SPI.SPSR.modify(.{ .SPI2X = config.spi2x });

@@ -1,11 +1,8 @@
-const uno = @import("../board/uno.zig");
-const regs = @import("../mcu/atmega328p.zig").registers;
+const gpio = @import("gpio.zig");
+const platform = @import("../platform/current.zig");
+const regs = platform.registers;
 
 pub const default_clock_hz = 100_000;
-
-const sda_pin = @as(u7, 1 << 4);
-const scl_pin = @as(u7, 1 << 5);
-const twi_pins = sda_pin | scl_pin;
 
 /// Initializes I2C at the default rate.
 pub fn init() void {
@@ -18,19 +15,21 @@ pub fn initWithFrequency(comptime clock_hz: comptime_int) void {
         @compileError("I2C clock must be greater than zero");
     }
 
-    if (clock_hz > uno.CPU_FREQ / 16) {
+    if (clock_hz > platform.CPU_FREQ / 16) {
         @compileError("I2C clock is too high for the configured CPU frequency");
     }
 
-    const twbr_value = (uno.CPU_FREQ / clock_hz - 16) / 2;
+    const twbr_value = (platform.CPU_FREQ / clock_hz - 16) / 2;
     if (twbr_value > 255) {
         @compileError("Computed TWBR value does not fit in 8 bits");
     }
 
     // SDA/SCL must be inputs for the TWI peripheral. Enabling the pull-ups
     // makes the bus usable without external resistors for short test setups.
-    regs.PORTC.DDRC.* &= ~twi_pins;
-    regs.PORTC.PORTC.* |= twi_pins;
+    gpio.init(platform.i2c_pins.sda, .in);
+    gpio.init(platform.i2c_pins.scl, .in);
+    gpio.setPullup(platform.i2c_pins.sda, true);
+    gpio.setPullup(platform.i2c_pins.scl, true);
 
     regs.TWI.TWSR.modify(.{ .TWPS = 0 });
     regs.TWI.TWBR.* = @as(u8, @intCast(twbr_value));

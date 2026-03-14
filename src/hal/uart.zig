@@ -1,9 +1,9 @@
-const uno = @import("../board/uno.zig");
-const regs = @import("../mcu/atmega328p.zig").registers;
+const platform = @import("../platform/current.zig");
+const regs = platform.registers;
 
 const ubrr0_value = blk: {
     const oversample = 8;
-    break :blk @as(u16, (uno.CPU_FREQ / (oversample * baud_rate)) - 1);
+    break :blk @as(u16, (platform.CPU_FREQ / (oversample * baud_rate)) - 1);
 };
 
 const baud_rate = 115200;

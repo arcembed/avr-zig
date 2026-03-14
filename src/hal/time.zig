@@ -1,8 +1,8 @@
-const uno = @import("../board/uno.zig");
-const regs = @import("../mcu/atmega328p.zig").registers;
+const platform = @import("../platform/current.zig");
+const regs = platform.registers;
 
 const timer0_prescaler = 64;
-const timer0_compare = (uno.CPU_FREQ / timer0_prescaler / 1000) - 1;
+const timer0_compare = (platform.CPU_FREQ / timer0_prescaler / 1000) - 1;
 
 comptime {
     if (timer0_compare > 255) {
