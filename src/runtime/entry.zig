@@ -43,6 +43,7 @@ fn exportInterruptHandler(comptime Namespace: type, comptime name: []const u8) v
     @export(&exported_fn, options);
 }
 
+/// Returns the runtime entry type.
 pub fn Entry(comptime App: type) type {
     comptime {
         if (!@hasDecl(App, "main")) {
@@ -88,10 +89,12 @@ pub fn Entry(comptime App: type) type {
             asm (asm_str);
         }
 
+        /// Handles an unbound interrupt.
         pub fn unhandledVector() void {
             while (true) {}
         }
 
+        /// Starts the application.
         pub fn start() noreturn {
             copy_data_to_ram();
             clear_bss();
@@ -140,6 +143,7 @@ pub fn Entry(comptime App: type) type {
             );
         }
 
+        /// Prints a panic message.
         pub fn panic(msg: []const u8, error_return_trace: ?*builtin.StackTrace, _: ?usize) noreturn {
             uart.write("PANIC: ");
             uart.write(msg);

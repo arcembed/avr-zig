@@ -15,6 +15,7 @@ pub const ClockDiv = enum {
     f128,
 };
 
+/// Initializes SPI master mode.
 pub fn init(comptime clock_div: ClockDiv) void {
     regs.PORTB.DDRB.* |= ss_mask | mosi_mask | sck_mask;
     regs.PORTB.DDRB.* &= ~miso_mask;
@@ -36,6 +37,7 @@ pub fn init(comptime clock_div: ClockDiv) void {
     });
 }
 
+/// Transfers one SPI byte.
 pub fn transfer(byte: u8) u8 {
     regs.SPI.SPDR.* = byte;
     while (regs.SPI.SPSR.read().SPIF != 1) {}

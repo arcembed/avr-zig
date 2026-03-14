@@ -18,18 +18,22 @@ pub const Font = struct {
     fallback_char: u8 = '?',
     data: []const u8,
 
+    /// Returns bytes used per column.
     pub fn bytesPerColumn(self: Font) usize {
         return @as(usize, @intCast((@as(u16, self.glyph_height) + 7) / 8));
     }
 
+    /// Returns bytes used per glyph.
     pub fn glyphStride(self: Font) usize {
         return @as(usize, self.glyph_width) * self.bytesPerColumn();
     }
 
+    /// Returns the line advance.
     pub fn lineAdvance(self: Font) u8 {
         return @as(u8, @intCast(@as(u16, self.glyph_height) + self.spacing_y));
     }
 
+    /// Measures text width.
     pub fn measureText(self: Font, text: []const u8) u16 {
         @setRuntimeSafety(false);
 
@@ -64,6 +68,7 @@ pub const Font = struct {
         return max_width;
     }
 
+    /// Returns glyph bitmap data.
     pub fn glyph(self: Font, character: u8) [*]const u8 {
         const normalized = self.normalizeChar(character);
         const stride = self.glyphStride();
@@ -104,6 +109,7 @@ pub const fonts = struct {
 
 pub const default_font = fonts.mono5x7;
 
+/// Returns an SSD1306 display type.
 pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
     comptime {
         if (display_width == 0 or display_height == 0) {
@@ -130,6 +136,7 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
         address: u7 = default_address,
         buffer: [buffer_len]u8 = [_]u8{0} ** buffer_len,
 
+        /// Initializes the display.
         pub fn init(self: *Self) bool {
             const commands = [_]u8{
                 0xAE,
@@ -168,6 +175,7 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
             return self.present();
         }
 
+        /// Clears the framebuffer.
         pub fn clear(self: *Self, color: Color) void {
             const fill = if (color == .on) @as(u8, 0xFF) else 0x00;
             const buffer_ptr: [*]volatile u8 = @ptrCast(&self.buffer);
@@ -177,6 +185,7 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
             }
         }
 
+        /// Draws one pixel.
         pub fn drawPixel(self: *Self, x: u8, y: u8, color: Color) void {
             if (x >= width or y >= height) {
                 return;
@@ -194,6 +203,7 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
             }
         }
 
+        /// Draws a line.
         pub fn drawLine(self: *Self, x0: i16, y0: i16, x1: i16, y1: i16, color: Color) void {
             var current_x = x0;
             var current_y = y0;
@@ -221,6 +231,7 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
             }
         }
 
+        /// Draws a horizontal line.
         pub fn drawHorizontalLine(self: *Self, x: i16, y: i16, line_width: u8, color: Color) void {
             var column: u8 = 0;
             while (column < line_width) : (column += 1) {
@@ -228,6 +239,7 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
             }
         }
 
+        /// Draws a vertical line.
         pub fn drawVerticalLine(self: *Self, x: i16, y: i16, line_height: u8, color: Color) void {
             var row: u8 = 0;
             while (row < line_height) : (row += 1) {
@@ -235,6 +247,7 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
             }
         }
 
+        /// Draws a rectangle outline.
         pub fn drawRect(self: *Self, x: i16, y: i16, rect_width: u8, rect_height: u8, color: Color) void {
             if (rect_width == 0 or rect_height == 0) {
                 return;
@@ -253,6 +266,7 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
             }
         }
 
+        /// Fills a rectangle.
         pub fn fillRect(self: *Self, x: i16, y: i16, rect_width: u8, rect_height: u8, color: Color) void {
             var row: u8 = 0;
             while (row < rect_height) : (row += 1) {
@@ -260,6 +274,7 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
             }
         }
 
+        /// Draws one character.
         pub fn drawChar(self: *Self, x: i16, y: i16, character: u8, color: Color, font: Font) void {
             @setRuntimeSafety(false);
 
@@ -297,6 +312,7 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
             }
         }
 
+        /// Draws a text string.
         pub fn drawText(self: *Self, x: i16, y: i16, text: []const u8, color: Color, font: Font) void {
             @setRuntimeSafety(false);
 
@@ -323,10 +339,12 @@ pub fn Display(comptime display_width: u8, comptime display_height: u8) type {
             }
         }
 
+        /// Measures text width.
         pub fn measureText(_: *Self, text: []const u8, font: Font) u16 {
             return font.measureText(text);
         }
 
+        /// Flushes the framebuffer.
         pub fn present(self: *Self) bool {
             const buffer_ptr: [*]const u8 = &self.buffer;
             var page: usize = 0;

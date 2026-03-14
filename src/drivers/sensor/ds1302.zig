@@ -27,6 +27,7 @@ pub const DateTime = struct {
     year: u16,
 };
 
+/// Returns a DS1302 driver type.
 pub fn Device(
     comptime rst_pin: gpio.Pin,
     comptime io_pin: gpio.Pin,
@@ -37,6 +38,7 @@ pub fn Device(
     return struct {
         const Self = @This();
 
+        /// Initializes the RTC pins.
         pub fn init(self: *Self) void {
             _ = self;
 
@@ -49,6 +51,7 @@ pub fn Device(
             gpio.write(io_pin, false);
         }
 
+        /// Reads the current date and time.
         pub fn readDateTime(self: *Self) DateTime {
             self.init();
 
@@ -66,6 +69,7 @@ pub fn Device(
             };
         }
 
+        /// Writes the date and time.
         pub fn writeDateTime(self: *Self, date_time: DateTime) Error!void {
             self.init();
             try validate(date_time);
@@ -87,6 +91,7 @@ pub fn Device(
             try self.setWriteProtect(true);
         }
 
+        /// Sets write protection.
         pub fn setWriteProtect(self: *Self, enabled: bool) Error!void {
             _ = self;
             try writeRegister(register_write_protect, if (enabled) 0x80 else 0x00);

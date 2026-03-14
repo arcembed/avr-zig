@@ -1,3 +1,6 @@
+//! This is the GPIO (General Purpose Input/Output) module, providing utilities
+//! for configuring, reading, and writing to pins.
+
 const regs = @import("../mcu/atmega328p.zig").registers;
 
 pub const Direction = enum { in, out };
@@ -104,6 +107,7 @@ fn set_pullup_portc(pin: u3, enabled: bool) void {
     write_portc(pin, enabled);
 }
 
+/// A GPIO pin on the Uno.
 pub const Pin = enum {
     D0,
     D1,
@@ -127,6 +131,7 @@ pub const Pin = enum {
     A5,
 };
 
+/// Sets a pin direction.
 pub fn init(comptime pin: Pin, comptime dir: Direction) void {
     const i = @intFromEnum(pin);
     if (i <= 7) {
@@ -138,6 +143,7 @@ pub fn init(comptime pin: Pin, comptime dir: Direction) void {
     }
 }
 
+/// Toggles a pin output.
 pub fn toggle(comptime pin: Pin) void {
     const i = comptime @intFromEnum(pin);
     if (i <= 7) {
@@ -149,6 +155,7 @@ pub fn toggle(comptime pin: Pin) void {
     }
 }
 
+/// Writes a pin level.
 pub fn write(comptime pin: Pin, high: bool) void {
     const i = comptime @intFromEnum(pin);
     if (i <= 7) {
@@ -160,6 +167,7 @@ pub fn write(comptime pin: Pin, high: bool) void {
     }
 }
 
+/// Reads a pin level.
 pub fn read(comptime pin: Pin) bool {
     const i = comptime @intFromEnum(pin);
     if (i <= 7) {
@@ -173,6 +181,7 @@ pub fn read(comptime pin: Pin) bool {
     unreachable;
 }
 
+/// Enables or disables the pull-up.
 pub fn setPullup(comptime pin: Pin, enabled: bool) void {
     const i = comptime @intFromEnum(pin);
     if (i <= 7) {

@@ -68,12 +68,14 @@ pub const Uid = struct {
     sak: u8,
 };
 
+/// Returns an MFRC522 driver type.
 pub fn Device(comptime cs_pin: gpio.Pin, comptime rst_pin: gpio.Pin) type {
     comptime ensureDistinctPins(cs_pin, rst_pin);
 
     return struct {
         const Self = @This();
 
+        /// Initializes the reader.
         pub fn init(self: *Self) void {
             spi.init(.f16);
             gpio.init(cs_pin, .out);
@@ -101,15 +103,18 @@ pub fn Device(comptime cs_pin: gpio.Pin, comptime rst_pin: gpio.Pin) type {
             self.antennaOn();
         }
 
+        /// Reads the chip version.
         pub fn version(self: *Self) u8 {
             return self.readRegister(.Version);
         }
 
+        /// Checks whether a card is present.
         pub fn isCardPresent(self: *Self) bool {
             _ = self.requestA() catch return false;
             return true;
         }
 
+        /// Sends a REQA command.
         pub fn requestA(self: *Self) Error![2]u8 {
             var response: [2]u8 = undefined;
             var rx_last_bits: u8 = 0;
@@ -127,11 +132,13 @@ pub fn Device(comptime cs_pin: gpio.Pin, comptime rst_pin: gpio.Pin) type {
             return response;
         }
 
+        /// Reads a 4-byte UID.
         pub fn readUid(self: *Self) Error!Uid {
             _ = try self.requestA();
             return self.selectCascadeLevel1();
         }
 
+        /// Halts the active card.
         pub fn haltA(self: *Self) void {
             var frame = [_]u8{ picc_cmd_hlta, 0x00, 0x00, 0x00 };
             const crc = self.calculateCrc(@ptrCast(&frame), 2) catch return;

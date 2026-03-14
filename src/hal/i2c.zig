@@ -7,10 +7,12 @@ const sda_pin = @as(u7, 1 << 4);
 const scl_pin = @as(u7, 1 << 5);
 const twi_pins = sda_pin | scl_pin;
 
+/// Initializes I2C at the default rate.
 pub fn init() void {
     initWithFrequency(default_clock_hz);
 }
 
+/// Initializes I2C at a fixed rate.
 pub fn initWithFrequency(comptime clock_hz: comptime_int) void {
     if (clock_hz <= 0) {
         @compileError("I2C clock must be greater than zero");
@@ -42,6 +44,7 @@ pub fn initWithFrequency(comptime clock_hz: comptime_int) void {
     });
 }
 
+/// Checks whether an address responds.
 pub fn probe(address: u7) bool {
     if (!startWrite(address)) {
         return false;
@@ -51,6 +54,7 @@ pub fn probe(address: u7) bool {
     return true;
 }
 
+/// Scans the bus for devices.
 pub fn scan(comptime on_found: fn (u7) void) usize {
     var count: usize = 0;
     var address: u8 = 0x08;
@@ -65,6 +69,7 @@ pub fn scan(comptime on_found: fn (u7) void) usize {
     return count;
 }
 
+/// Starts an I2C write transaction.
 pub fn startWrite(address: u7) bool {
     if (!sendStart()) {
         sendStop();
@@ -80,10 +85,12 @@ pub fn startWrite(address: u7) bool {
     return true;
 }
 
+/// Writes one data byte.
 pub fn writeData(byte: u8) bool {
     return writeByte(byte) == 0x28;
 }
 
+/// Writes a byte slice.
 pub fn write(address: u7, bytes: []const u8) bool {
     if (!startWrite(address)) {
         return false;
@@ -101,6 +108,7 @@ pub fn write(address: u7, bytes: []const u8) bool {
     return true;
 }
 
+/// Ends the current transaction.
 pub fn stop() void {
     sendStop();
 }

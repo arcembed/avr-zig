@@ -20,6 +20,7 @@ const Channel = enum {
     timer2_b,
 };
 
+/// Returns whether PWM is supported.
 pub fn supports(comptime pin: gpio.Pin) bool {
     return switch (pin) {
         .D3, .D9, .D10, .D11 => true,
@@ -27,6 +28,7 @@ pub fn supports(comptime pin: gpio.Pin) bool {
     };
 }
 
+/// Initializes PWM on a pin.
 pub fn init(comptime pin: gpio.Pin) void {
     const channel = comptime channelForPin(pin);
 
@@ -40,6 +42,7 @@ pub fn init(comptime pin: gpio.Pin) void {
     write(pin, 0);
 }
 
+/// Sets the PWM duty cycle.
 pub fn write(comptime pin: gpio.Pin, duty: u8) void {
     const channel = comptime channelForPin(pin);
 

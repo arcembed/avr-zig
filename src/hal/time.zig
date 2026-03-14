@@ -23,11 +23,13 @@ var timer0_initialized = false;
 var tick_ms: u32 = 0;
 
 pub const runtime_interrupts = struct {
+    /// Handles the Timer0 compare ISR.
     pub fn TIMER0_COMPA() void {
         handleTimer0CompareA();
     }
 };
 
+/// Sleeps for milliseconds.
 pub fn sleep(ms: u32) void {
     if (ms == 0) return;
 
@@ -39,6 +41,7 @@ pub fn sleep(ms: u32) void {
     }
 }
 
+/// Returns elapsed milliseconds.
 pub fn millis() u32 {
     const interrupts_were_enabled = interruptsEnabled();
     cli();
@@ -49,6 +52,7 @@ pub fn millis() u32 {
     return now;
 }
 
+/// Advances the millisecond tick.
 pub fn handleTimer0CompareA() void {
     tick_ms +%= 1;
 }

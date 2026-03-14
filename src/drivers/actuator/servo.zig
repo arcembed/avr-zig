@@ -15,6 +15,7 @@ const non_inverting_compare_output = 0b10;
 
 var active = false;
 
+/// Returns whether servo output is supported.
 pub fn supports(comptime pin: gpio.Pin) bool {
     return switch (pin) {
         .D9, .D10 => true,
@@ -22,10 +23,12 @@ pub fn supports(comptime pin: gpio.Pin) bool {
     };
 }
 
+/// Reports whether Timer1 is in use.
 pub fn isActive() bool {
     return active;
 }
 
+/// Initializes servo output.
 pub fn init(comptime pin: gpio.Pin) void {
     comptime ensureSupported(pin);
 
@@ -45,6 +48,7 @@ pub fn init(comptime pin: gpio.Pin) void {
     writeMicros(pin, center_pulse_us);
 }
 
+/// Stops servo output.
 pub fn deinit() void {
     regs.TC1.TCCR1B.modify(.{ .CS1 = 0, .WGM1 = 0 });
     regs.TC1.TCCR1A.modify(.{ .WGM1 = 0, .COM1A = 0, .COM1B = 0 });
@@ -53,6 +57,7 @@ pub fn deinit() void {
     active = false;
 }
 
+/// Sets the pulse width.
 pub fn writeMicros(comptime pin: gpio.Pin, pulse_us: u16) void {
     comptime ensureSupported(pin);
 
@@ -66,6 +71,7 @@ pub fn writeMicros(comptime pin: gpio.Pin, pulse_us: u16) void {
     }
 }
 
+/// Sets the angle in degrees.
 pub fn writeDegrees(comptime pin: gpio.Pin, degrees: u8) void {
     comptime ensureSupported(pin);
 

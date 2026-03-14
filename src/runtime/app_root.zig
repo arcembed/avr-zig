@@ -16,6 +16,7 @@ pub export fn _start() noreturn {
     Runtime.start();
 }
 
+/// Prints a panic message.
 pub fn panic(msg: []const u8, error_return_trace: ?*std.builtin.StackTrace, return_address: ?usize) noreturn {
     if (@hasDecl(App, "panic")) {
         App.panic(msg, error_return_trace, return_address);

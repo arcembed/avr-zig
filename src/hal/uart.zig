@@ -8,6 +8,7 @@ const ubrr0_value = blk: {
 
 const baud_rate = 115200;
 
+/// Initializes UART output.
 pub fn init(comptime baud: comptime_int) void {
     if (baud != baud_rate) {
         @compileError("uart.init currently supports only 115200 baud on this Zig toolchain");
@@ -23,6 +24,7 @@ pub fn init(comptime baud: comptime_int) void {
     regs.USART0.UCSR0B.modify(.{ .TXEN0 = 1 });
 }
 
+/// Writes a byte slice.
 pub fn write(data: []const u8) void {
     for (data) |ch| {
         write_ch(ch);
@@ -32,6 +34,7 @@ pub fn write(data: []const u8) void {
     while (regs.USART0.UCSR0A.read().TXC0 != 1) {}
 }
 
+/// Writes one byte.
 pub fn write_ch(ch: u8) void {
     // Wait till the transmit buffer is empty
     while (regs.USART0.UCSR0A.read().UDRE0 != 1) {}

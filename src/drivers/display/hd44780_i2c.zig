@@ -21,6 +21,7 @@ const flag_display_on: u8 = 0x04;
 const flag_function_2line: u8 = 0x08;
 const flag_function_5x10dots: u8 = 0x04;
 
+/// Returns an HD44780 display type.
 pub fn Display(comptime display_columns: u8, comptime display_rows: u8) type {
     comptime {
         if (display_columns == 0 or display_rows == 0) {
@@ -45,6 +46,7 @@ pub fn Display(comptime display_columns: u8, comptime display_rows: u8) type {
         backlight_enabled: bool = true,
         buffer: [buffer_len]u8 = [_]u8{' '} ** buffer_len,
 
+        /// Initializes the display.
         pub fn init(self: *Self) bool {
             fillBuffer(self, ' ');
             time.sleep(50);
@@ -86,6 +88,7 @@ pub fn Display(comptime display_columns: u8, comptime display_rows: u8) type {
             return self.present();
         }
 
+        /// Clears the display.
         pub fn clear(self: *Self) bool {
             fillBuffer(self, ' ');
             if (!self.writeCommand(cmd_clear_display, 2)) {
@@ -94,10 +97,12 @@ pub fn Display(comptime display_columns: u8, comptime display_rows: u8) type {
             return self.present();
         }
 
+        /// Moves the cursor home.
         pub fn home(self: *Self) bool {
             return self.writeCommand(cmd_return_home, 2);
         }
 
+        /// Sets the backlight state.
         pub fn setBacklight(self: *Self, enabled: bool) bool {
             self.backlight_enabled = enabled;
 
@@ -115,6 +120,7 @@ pub fn Display(comptime display_columns: u8, comptime display_rows: u8) type {
             return true;
         }
 
+        /// Stores one character in the buffer.
         pub fn put(self: *Self, column: u8, row: u8, char: u8) void {
             if (column >= width or row >= height) {
                 return;
@@ -125,6 +131,7 @@ pub fn Display(comptime display_columns: u8, comptime display_rows: u8) type {
             buffer_ptr[index] = normalizeChar(char);
         }
 
+        /// Writes one buffered line.
         pub fn writeLine(self: *Self, row: u8, text: []const u8) void {
             @setRuntimeSafety(false);
 
@@ -154,6 +161,7 @@ pub fn Display(comptime display_columns: u8, comptime display_rows: u8) type {
             }
         }
 
+        /// Writes text into the buffer.
         pub fn write(self: *Self, start_column: u8, start_row: u8, text: []const u8) void {
             if (start_row >= height or start_column >= width) {
                 return;
@@ -184,6 +192,7 @@ pub fn Display(comptime display_columns: u8, comptime display_rows: u8) type {
             }
         }
 
+        /// Flushes the buffer to the display.
         pub fn present(self: *Self) bool {
             const buffer_ptr: [*]const u8 = &self.buffer;
             var row: u8 = 0;
@@ -211,6 +220,7 @@ pub fn Display(comptime display_columns: u8, comptime display_rows: u8) type {
             return true;
         }
 
+        /// Moves the hardware cursor.
         pub fn setCursor(self: *Self, column: u8, row: u8) bool {
             if (column >= width or row >= height) {
                 return false;
@@ -219,6 +229,7 @@ pub fn Display(comptime display_columns: u8, comptime display_rows: u8) type {
             return self.writeCommand(cmd_set_ddram_addr | (ddramBase(row) + column), 1);
         }
 
+        /// Writes one character directly.
         pub fn writeChar(self: *Self, char: u8) bool {
             const sanitized = normalizeChar(char);
 

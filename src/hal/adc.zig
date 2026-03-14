@@ -15,6 +15,7 @@ const adc_prescaler_128: u3 = 0b111;
 
 var initialized = false;
 
+/// Initializes the ADC.
 pub fn init() void {
     if (initialized) return;
 
@@ -32,6 +33,7 @@ pub fn init() void {
     initialized = true;
 }
 
+/// Reads one analog sample.
 pub fn read(comptime pin: AnalogPin) u16 {
     init();
 

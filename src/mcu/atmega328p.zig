@@ -1218,10 +1218,12 @@ pub const registers = struct {
 
 const std = @import("std");
 
+/// Returns a packed MMIO pointer.
 pub fn mmio(addr: usize, comptime size: u8, comptime PackedT: type) *volatile Mmio(size, PackedT) {
     return @as(*volatile Mmio(size, PackedT), @ptrFromInt(addr));
 }
 
+/// Returns a packed MMIO register type.
 pub fn Mmio(comptime size: u8, comptime PackedT: type) type {
     if ((size % 8) != 0)
         @compileError("size must be divisible by 8!");
@@ -1241,10 +1243,12 @@ pub fn Mmio(comptime size: u8, comptime PackedT: type) type {
 
         pub const underlying_type = PackedT;
 
+        /// Reads the register value.
         pub inline fn read(addr: *volatile Self) PackedT {
             return @as(PackedT, @bitCast(addr.raw));
         }
 
+        /// Writes the register value.
         pub inline fn write(addr: *volatile Self, val: PackedT) void {
             // This is a workaround for a compiler bug related to miscompilation
             // If the tmp var is not used, result location will fuck things up
@@ -1252,6 +1256,7 @@ pub fn Mmio(comptime size: u8, comptime PackedT: type) type {
             addr.raw = tmp;
         }
 
+        /// Updates selected fields.
         pub inline fn modify(addr: *volatile Self, fields: anytype) void {
             var val = read(addr);
             inline for (@typeInfo(@TypeOf(fields)).@"struct".fields) |field| {
@@ -1260,6 +1265,7 @@ pub fn Mmio(comptime size: u8, comptime PackedT: type) type {
             write(addr, val);
         }
 
+        /// Toggles selected fields.
         pub inline fn toggle(addr: *volatile Self, fields: anytype) void {
             var val = read(addr);
             inline for (@typeInfo(@TypeOf(fields)).@"struct".fields) |field| {
@@ -1270,16 +1276,19 @@ pub fn Mmio(comptime size: u8, comptime PackedT: type) type {
     };
 }
 
+/// Returns an integer MMIO register type.
 pub fn MmioInt(comptime size: u8, comptime T: type) type {
     return extern struct {
         const Self = @This();
 
         raw: std.meta.Int(.unsigned, size),
 
+        /// Reads the register value.
         pub inline fn read(addr: *volatile Self) T {
             return @as(T, @truncate(addr.raw));
         }
 
+        /// Updates the register value.
         pub inline fn modify(addr: *volatile Self, val: T) void {
             const Int = std.meta.Int(.unsigned, size);
             const mask = ~@as(Int, (1 << @bitSizeOf(T)) - 1);
@@ -1290,6 +1299,7 @@ pub fn MmioInt(comptime size: u8, comptime T: type) type {
     };
 }
 
+/// Returns an integer MMIO pointer.
 pub fn mmioInt(addr: usize, comptime size: usize, comptime T: type) *volatile MmioInt(size, T) {
     return @as(*volatile MmioInt(size, T), @ptrFromInt(addr));
 }

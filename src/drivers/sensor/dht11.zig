@@ -19,6 +19,7 @@ pub const Reading = struct {
     temperature_decimal: u8,
 };
 
+/// Reads one sensor sample.
 pub fn read(comptime pin: gpio.Pin) Error!Reading {
     var bytes = [_]u8{ 0, 0, 0, 0, 0 };
 

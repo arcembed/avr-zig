@@ -21,6 +21,7 @@ pub const Reading = struct {
     distance_cm: u16,
 };
 
+/// Initializes the sensor pins.
 pub fn init(comptime echo_pin: gpio.Pin, comptime trig_pin: gpio.Pin) void {
     comptime ensureDistinctPins(echo_pin, trig_pin);
 
@@ -30,6 +31,7 @@ pub fn init(comptime echo_pin: gpio.Pin, comptime trig_pin: gpio.Pin) void {
     gpio.setPullup(echo_pin, false);
 }
 
+/// Reads one distance sample.
 pub fn read(comptime echo_pin: gpio.Pin, comptime trig_pin: gpio.Pin) Error!Reading {
     init(echo_pin, trig_pin);
     if (servo.isActive()) {
