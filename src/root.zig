@@ -1,9 +1,11 @@
 pub const mcu = struct {
     pub const atmega328p = @import("mcu/atmega328p.zig");
+    pub const atmega2560 = @import("mcu/atmega2560.zig");
 };
 
 pub const board = struct {
     pub const uno = @import("board/uno.zig");
+    pub const mega2560 = @import("board/mega2560.zig");
 };
 
 pub const hal = struct {
@@ -49,3 +51,4 @@ pub const spi = hal.spi;
 pub const time = hal.time;
 pub const uart = hal.uart;
 pub const uno = board.uno;
+pub const mega2560 = board.mega2560;
