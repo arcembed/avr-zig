@@ -1,6 +1,6 @@
 const std = @import("std");
 const builtin = std.builtin;
-const atmega328p = @import("../mcu/atmega328p.zig");
+const platform = @import("../platform/current.zig");
 const time = @import("../hal/time.zig");
 const uart = @import("../hal/uart.zig");
 
@@ -10,9 +10,9 @@ fn validateInterruptNamespace(comptime Namespace: type, comptime namespace_name:
     }
 
     for (std.meta.declarations(Namespace)) |decl| {
-        if (!@hasField(atmega328p.VectorTable, decl.name)) {
+        if (!@hasField(platform.VectorTable, decl.name)) {
             var msg: []const u8 = "There is no such interrupt as '" ++ decl.name ++ "'. ISRs in '" ++ namespace_name ++ "' must be one of:\n";
-            for (std.meta.fields(atmega328p.VectorTable)) |field| {
+            for (std.meta.fields(platform.VectorTable)) |field| {
                 if (!std.mem.eql(u8, "RESET", field.name)) {
                     msg = msg ++ "    " ++ field.name ++ "\n";
                 }
@@ -53,7 +53,7 @@ pub fn Entry(comptime App: type) type {
 
     return struct {
         comptime {
-            std.debug.assert(std.mem.eql(u8, "RESET", std.meta.fields(atmega328p.VectorTable)[0].name));
+            std.debug.assert(std.mem.eql(u8, "RESET", std.meta.fields(platform.VectorTable)[0].name));
 
             var asm_str: []const u8 = ".section .vectors\njmp _start\n";
             const has_interrupts = @hasDecl(App, "interrupts");
@@ -65,7 +65,7 @@ pub fn Entry(comptime App: type) type {
                 validateInterruptNamespace(App.interrupts, "interrupts");
             }
 
-            for (std.meta.fields(atmega328p.VectorTable)[1..]) |field| {
+            for (std.meta.fields(platform.VectorTable)[1..]) |field| {
                 const new_instruction = if (has_interrupts) overload: {
                     if (@hasDecl(App.interrupts, field.name)) {
                         exportInterruptHandler(App.interrupts, field.name);
