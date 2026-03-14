@@ -11,7 +11,7 @@ pub const Board = enum {
     mega2560,
 };
 
-pub const current_board: Board = comptime blk: {
+pub const current_board: Board = blk: {
     if (builtin.target.cpu.arch != .avr) {
         @compileError("avr_zig supports only AVR freestanding targets");
     }
