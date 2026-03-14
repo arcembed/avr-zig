@@ -1,10 +1,13 @@
+const builtin = @import("builtin");
+const std = @import("std");
 const avr = @import("avr_zig");
 const pwm = avr.pwm;
 const time = avr.time;
 
-const red_pin: avr.gpio.Pin = .D9;
-const green_pin: avr.gpio.Pin = .D10;
-const blue_pin: avr.gpio.Pin = .D11;
+const is_mega2560 = std.mem.eql(u8, builtin.target.cpu.model.name, "atmega2560");
+const red_pin: avr.gpio.Pin = if (is_mega2560) .D44 else .D9;
+const green_pin: avr.gpio.Pin = if (is_mega2560) .D45 else .D10;
+const blue_pin: avr.gpio.Pin = if (is_mega2560) .D46 else .D11;
 
 pub fn main() void {
     pwm.init(red_pin);

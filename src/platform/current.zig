@@ -71,8 +71,18 @@ pub const AnalogInputDisable = struct {
 pub const PwmChannel = enum {
     timer1_a,
     timer1_b,
+    timer1_c,
     timer2_a,
     timer2_b,
+    timer3_a,
+    timer3_b,
+    timer3_c,
+    timer4_a,
+    timer4_b,
+    timer4_c,
+    timer5_a,
+    timer5_b,
+    timer5_c,
 };
 
 pub const ServoChannel = enum {
@@ -408,10 +418,20 @@ pub fn pwmChannel(comptime pin: Pin) ?PwmChannel {
             else => null,
         },
         .mega2560 => switch (pin) {
+            .D2 => .timer3_b,
+            .D3 => .timer3_c,
+            .D5 => .timer3_a,
+            .D6 => .timer4_a,
+            .D7 => .timer4_b,
+            .D8 => .timer4_c,
             .D11 => .timer1_a,
             .D12 => .timer1_b,
+            .D13 => .timer1_c,
             .D10 => .timer2_a,
             .D9 => .timer2_b,
+            .D44 => .timer5_c,
+            .D45 => .timer5_b,
+            .D46 => .timer5_a,
             else => null,
         },
     };
@@ -424,7 +444,7 @@ pub fn usesReservedTimer0Pwm(comptime pin: Pin) bool {
             else => false,
         },
         .mega2560 => switch (pin) {
-            .D4, .D13 => true,
+            .D4 => true,
             else => false,
         },
     };

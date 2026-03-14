@@ -14,6 +14,8 @@ zig build -Dboard=mega2560 upload -Dtty=/dev/ttyACM0
 
 Serial-monitor examples keep using `monitor` at `115200` baud. `avr.hal.uart` is still `UART0`, so the examples print on `D0/D1` for both supported boards.
 
+The PWM examples keep using Uno-friendly pins on the Uno, and switch to `D44/D45/D46` on the Mega 2560 so the Timer5 PWM outputs are exercised by default.
+
 Available examples:
 
 - `analog-input`

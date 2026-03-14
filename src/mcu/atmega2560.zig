@@ -251,6 +251,86 @@ pub const registers = struct {
         }), @ptrFromInt(0x36));
     };
 
+    pub const TC3 = struct {
+        pub const TCCR3A = @as(*volatile Mmio(8, packed struct {
+            WGM3: u2,
+            COM3C: u2,
+            COM3B: u2,
+            COM3A: u2,
+        }), @ptrFromInt(0x90));
+
+        pub const TCCR3B = @as(*volatile Mmio(8, packed struct {
+            CS3: u3,
+            WGM3: u2,
+            reserved0: u1,
+            ICES3: u1,
+            ICNC3: u1,
+        }), @ptrFromInt(0x91));
+
+        pub const TCCR3C = @as(*volatile Mmio(8, packed struct {
+            reserved0: u5,
+            FOC3C: u1,
+            FOC3B: u1,
+            FOC3A: u1,
+        }), @ptrFromInt(0x92));
+
+        pub const TCNT3 = @as(*volatile u16, @ptrFromInt(0x94));
+        pub const ICR3 = @as(*volatile u16, @ptrFromInt(0x96));
+        pub const OCR3A = @as(*volatile u16, @ptrFromInt(0x98));
+        pub const OCR3B = @as(*volatile u16, @ptrFromInt(0x9a));
+        pub const OCR3C = @as(*volatile u16, @ptrFromInt(0x9c));
+
+        pub const TIFR3 = @as(*volatile Mmio(8, packed struct {
+            TOV3: u1,
+            OCF3A: u1,
+            OCF3B: u1,
+            OCF3C: u1,
+            reserved0: u1,
+            ICF3: u1,
+            padding0: u2,
+        }), @ptrFromInt(0x38));
+    };
+
+    pub const TC4 = struct {
+        pub const TCCR4A = @as(*volatile Mmio(8, packed struct {
+            WGM4: u2,
+            COM4C: u2,
+            COM4B: u2,
+            COM4A: u2,
+        }), @ptrFromInt(0xa0));
+
+        pub const TCCR4B = @as(*volatile Mmio(8, packed struct {
+            CS4: u3,
+            WGM4: u2,
+            reserved0: u1,
+            ICES4: u1,
+            ICNC4: u1,
+        }), @ptrFromInt(0xa1));
+
+        pub const TCCR4C = @as(*volatile Mmio(8, packed struct {
+            reserved0: u5,
+            FOC4C: u1,
+            FOC4B: u1,
+            FOC4A: u1,
+        }), @ptrFromInt(0xa2));
+
+        pub const TCNT4 = @as(*volatile u16, @ptrFromInt(0xa4));
+        pub const ICR4 = @as(*volatile u16, @ptrFromInt(0xa6));
+        pub const OCR4A = @as(*volatile u16, @ptrFromInt(0xa8));
+        pub const OCR4B = @as(*volatile u16, @ptrFromInt(0xaa));
+        pub const OCR4C = @as(*volatile u16, @ptrFromInt(0xac));
+
+        pub const TIFR4 = @as(*volatile Mmio(8, packed struct {
+            TOV4: u1,
+            OCF4A: u1,
+            OCF4B: u1,
+            OCF4C: u1,
+            reserved0: u1,
+            ICF4: u1,
+            padding0: u2,
+        }), @ptrFromInt(0x39));
+    };
+
     pub const TC2 = struct {
         pub const TCCR2A = @as(*volatile Mmio(8, packed struct {
             WGM2: u2,
@@ -364,6 +444,46 @@ pub const registers = struct {
         pub const PINL = @as(*volatile u8, @ptrFromInt(0x109));
         pub const DDRL = @as(*volatile u8, @ptrFromInt(0x10a));
         pub const PORTL = @as(*volatile u8, @ptrFromInt(0x10b));
+    };
+
+    pub const TC5 = struct {
+        pub const TCCR5A = @as(*volatile Mmio(8, packed struct {
+            WGM5: u2,
+            COM5C: u2,
+            COM5B: u2,
+            COM5A: u2,
+        }), @ptrFromInt(0x120));
+
+        pub const TCCR5B = @as(*volatile Mmio(8, packed struct {
+            CS5: u3,
+            WGM5: u2,
+            reserved0: u1,
+            ICES5: u1,
+            ICNC5: u1,
+        }), @ptrFromInt(0x121));
+
+        pub const TCCR5C = @as(*volatile Mmio(8, packed struct {
+            reserved0: u5,
+            FOC5C: u1,
+            FOC5B: u1,
+            FOC5A: u1,
+        }), @ptrFromInt(0x122));
+
+        pub const TCNT5 = @as(*volatile u16, @ptrFromInt(0x124));
+        pub const ICR5 = @as(*volatile u16, @ptrFromInt(0x126));
+        pub const OCR5A = @as(*volatile u16, @ptrFromInt(0x128));
+        pub const OCR5B = @as(*volatile u16, @ptrFromInt(0x12a));
+        pub const OCR5C = @as(*volatile u16, @ptrFromInt(0x12c));
+
+        pub const TIFR5 = @as(*volatile Mmio(8, packed struct {
+            TOV5: u1,
+            OCF5A: u1,
+            OCF5B: u1,
+            OCF5C: u1,
+            reserved0: u1,
+            ICF5: u1,
+            padding0: u2,
+        }), @ptrFromInt(0x3a));
     };
 
     pub const SPI = struct {

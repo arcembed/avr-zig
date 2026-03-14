@@ -53,5 +53,6 @@ The public API stays the same across both targets. `avr.gpio.Pin` and `avr.adc.A
 - Uno `SPI` uses `D10..D13`; Mega 2560 `SPI` uses `D50..D53`.
 - Uno `I2C` uses `A4/A5`; Mega 2560 `I2C` uses `D20/D21`.
 - `avr.hal.time` reserves `Timer0`, so Timer0-backed PWM outputs stay unavailable.
-- `avr.hal.pwm` currently supports `D3`, `D9`, `D10`, and `D11` on the Uno, and `D9`, `D10`, `D11`, and `D12` on the Mega 2560.
+- `avr.hal.pwm` currently supports `D3`, `D9`, `D10`, and `D11` on the Uno.
+- `avr.hal.pwm` on the Mega 2560 supports `D2`, `D3`, `D5`, `D6`, `D7`, `D8`, `D9`, `D10`, `D11`, `D12`, `D13`, `D44`, `D45`, and `D46`.
 - The servo driver stays Timer1-based. The default servo example uses `D9` on the Uno and `D11` on the Mega 2560.
