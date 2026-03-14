@@ -81,10 +81,11 @@ fn setChannel(channel: u5) void {
 fn enableDigitalInputDisable(comptime pin: AnalogPin) void {
     const disable = comptime platform.analogInputDisable(pin);
 
-    switch (disable.register) {
-        .didr0 => {
+    switch (disable) {
+        .none => {},
+        .didr0 => |bit| {
             var val = regs.ADC.DIDR0.read();
-            switch (disable.bit) {
+            switch (bit) {
                 0 => val.ADC0D = 1,
                 1 => val.ADC1D = 1,
                 2 => val.ADC2D = 1,
@@ -96,9 +97,9 @@ fn enableDigitalInputDisable(comptime pin: AnalogPin) void {
             }
             regs.ADC.DIDR0.write(val);
         },
-        .didr2 => {
+        .didr2 => |bit| {
             var val = regs.ADC.DIDR2.read();
-            switch (disable.bit) {
+            switch (bit) {
                 0 => val.ADC8D = 1,
                 1 => val.ADC9D = 1,
                 2 => val.ADC10D = 1,

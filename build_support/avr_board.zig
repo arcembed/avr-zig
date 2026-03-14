@@ -11,6 +11,11 @@ pub const Spec = struct {
     linker_script: []const u8,
 };
 
+pub const UploadProfile = enum {
+    default,
+    nano_old_bootloader,
+};
+
 pub fn resolveBoard(b: *std.Build) Board {
     const value = b.option([]const u8, "board", "Target board: uno, nano, or mega2560") orelse "uno";
 
@@ -27,6 +32,20 @@ pub fn resolveBoard(b: *std.Build) Board {
     }
 
     std.debug.panic("unsupported -Dboard={s}; use 'uno', 'nano', or 'mega2560'", .{value});
+}
+
+pub fn resolveUploadProfile(b: *std.Build) UploadProfile {
+    const value = b.option([]const u8, "upload_profile", "Upload profile: default or nano_old_bootloader") orelse "default";
+
+    if (std.mem.eql(u8, value, "default")) {
+        return .default;
+    }
+
+    if (std.mem.eql(u8, value, "nano_old_bootloader")) {
+        return .nano_old_bootloader;
+    }
+
+    std.debug.panic("unsupported -Dupload_profile={s}; use 'default' or 'nano_old_bootloader'", .{value});
 }
 
 pub fn spec(board: Board) Spec {
@@ -74,6 +93,7 @@ pub fn defaultTty(_: Board) []const u8 {
 pub fn addUploadStep(
     b: *std.Build,
     board: Board,
+    upload_profile: UploadProfile,
     tty: []const u8,
     description: []const u8,
     bin_path: []const u8,
@@ -94,7 +114,10 @@ pub fn addUploadStep(
             "avrdude",
             "-carduino",
             "-patmega328p",
-            "-b115200",
+            switch (upload_profile) {
+                .default => "-b115200",
+                .nano_old_bootloader => "-b57600",
+            },
             "-D",
             "-P",
             tty,

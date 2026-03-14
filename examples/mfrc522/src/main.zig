@@ -1,5 +1,3 @@
-const builtin = @import("builtin");
-const std = @import("std");
 const avr = @import("avr_zig");
 
 const time = avr.time;
@@ -7,9 +5,12 @@ const uart = avr.uart;
 const mfrc522 = avr.drivers.rfid.mfrc522;
 
 const Reader = mfrc522.Device(.D10, .D9);
-const is_mega2560 = std.mem.eql(u8, builtin.target.cpu.model.name, "atmega2560");
-const board_name = if (is_mega2560) "Mega 2560" else "Uno";
-const spi_pin_text = if (is_mega2560)
+const board_name = switch (avr.current_board) {
+    .uno => "Uno",
+    .nano => "Nano",
+    .mega2560 => "Mega 2560",
+};
+const spi_pin_text = if (avr.current_board == .mega2560)
     "CS=D10 RST=D9 MOSI=D51 MISO=D50 SCK=D52\r\n"
 else
     "CS=D10 RST=D9 MOSI=D11 MISO=D12 SCK=D13\r\n";

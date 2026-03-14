@@ -3,13 +3,19 @@ const adc = avr.adc;
 const time = avr.time;
 const uart = avr.uart;
 
+const analog_pin: adc.AnalogPin = if (avr.current_board == .nano) .A7 else .A0;
+const analog_pin_name = if (avr.current_board == .nano) "A7" else "A0";
+
 pub fn main() void {
     uart.init(115200);
-    uart.write("Analog input example on A0\r\n");
+    uart.write("Analog input example on ");
+    uart.write(analog_pin_name);
+    uart.write("\r\n");
 
     while (true) {
-        const sample = adc.read(.A0);
-        uart.write("A0=0x");
+        const sample = adc.read(analog_pin);
+        uart.write(analog_pin_name);
+        uart.write("=0x");
         writeHexWord(sample);
         uart.write("\r\n");
         time.sleep(250);

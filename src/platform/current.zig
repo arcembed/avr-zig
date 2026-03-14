@@ -86,9 +86,10 @@ pub const PinDesc = struct {
     bit: u3,
 };
 
-pub const AnalogInputDisable = struct {
-    register: enum { didr0, didr2 },
-    bit: u3,
+pub const AnalogInputDisable = union(enum) {
+    none,
+    didr0: u3,
+    didr2: u3,
 };
 
 pub const PwmChannel = enum {
@@ -455,14 +456,20 @@ pub fn analogDigitalPin(comptime pin: AnalogPin) ?Pin {
 
 pub fn analogInputDisable(comptime pin: AnalogPin) AnalogInputDisable {
     return switch (current_board) {
-        .uno => .{ .register = .didr0, .bit = @as(u3, @intCast(analogChannel(pin))) },
-        .nano => .{ .register = .didr0, .bit = @as(u3, @intCast(analogChannel(pin))) },
+        .uno => .{ .didr0 = @as(u3, @intCast(analogChannel(pin))) },
+        .nano => blk: {
+            const channel = analogChannel(pin);
+            if (channel < 6) {
+                break :blk .{ .didr0 = @as(u3, @intCast(channel)) };
+            }
+            break :blk .none;
+        },
         .mega2560 => blk: {
             const channel = analogChannel(pin);
             if (channel < 8) {
-                break :blk .{ .register = .didr0, .bit = @as(u3, @intCast(channel)) };
+                break :blk .{ .didr0 = @as(u3, @intCast(channel)) };
             }
-            break :blk .{ .register = .didr2, .bit = @as(u3, @intCast(channel - 8)) };
+            break :blk .{ .didr2 = @as(u3, @intCast(channel - 8)) };
         },
     };
 }

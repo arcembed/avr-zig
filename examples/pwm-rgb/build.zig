@@ -6,6 +6,7 @@ pub fn build(b: *std.Build) void {
     const board = avr_board.resolveBoard(b);
     const spec = avr_board.spec(board);
     const tty = b.option([]const u8, "tty", "Serial device for avrdude and screen") orelse avr_board.defaultTty(board);
+    const upload_profile = avr_board.resolveUploadProfile(b);
 
     const avr_dep = b.dependency("avr_zig", .{ .board = @tagName(board) });
     const avr_mod = avr_dep.module("avr_zig");
@@ -36,6 +37,6 @@ pub fn build(b: *std.Build) void {
     b.installArtifact(exe);
 
     const bin_path = b.getInstallPath(.bin, exe.out_filename);
-    avr_board.addUploadStep(b, board, tty, "Flash the pwm-rgb example with avrdude", bin_path);
+    avr_board.addUploadStep(b, board, upload_profile, tty, "Flash the pwm-rgb example with avrdude", bin_path);
     avr_board.addObjdumpStep(b, "Disassemble the pwm-rgb firmware", bin_path);
 }
