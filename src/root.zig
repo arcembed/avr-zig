@@ -5,6 +5,7 @@ pub const mcu = struct {
 
 pub const board = struct {
     pub const uno = @import("board/uno.zig");
+    pub const nano = @import("board/nano.zig");
     pub const mega2560 = @import("board/mega2560.zig");
 };
 
@@ -44,6 +45,8 @@ pub const runtime = struct {
 };
 
 pub const adc = hal.adc;
+pub const Board = @import("platform/current.zig").Board;
+pub const current_board = @import("platform/current.zig").current_board;
 pub const gpio = hal.gpio;
 pub const i2c = hal.i2c;
 pub const pwm = hal.pwm;
@@ -51,4 +54,5 @@ pub const spi = hal.spi;
 pub const time = hal.time;
 pub const uart = hal.uart;
 pub const uno = board.uno;
+pub const nano = board.nano;
 pub const mega2560 = board.mega2560;

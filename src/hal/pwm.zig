@@ -25,7 +25,7 @@ pub fn supports(comptime pin: gpio.Pin) bool {
 pub fn init(comptime pin: gpio.Pin) void {
     const channel = comptime channelForPin(pin);
 
-    if (platform.current_board == .uno) {
+    if (platform.current_board != .mega2560) {
         switch (channel) {
             .timer1_a, .timer1_b => ensureTimer1(),
             .timer2_a, .timer2_b => ensureTimer2(),
@@ -50,7 +50,7 @@ pub fn init(comptime pin: gpio.Pin) void {
 pub fn write(comptime pin: gpio.Pin, duty: u8) void {
     const channel = comptime channelForPin(pin);
 
-    if (platform.current_board == .uno) {
+    if (platform.current_board != .mega2560) {
         switch (channel) {
             .timer1_a => regs.TC1.OCR1A.* = duty,
             .timer1_b => regs.TC1.OCR1B.* = duty,
@@ -158,7 +158,7 @@ fn ensureTimer2() void {
 }
 
 fn enableChannel(channel: platform.PwmChannel) void {
-    if (platform.current_board == .uno) {
+    if (platform.current_board != .mega2560) {
         switch (channel) {
             .timer1_a => regs.TC1.TCCR1A.modify(.{ .COM1A = non_inverting_compare_output }),
             .timer1_b => regs.TC1.TCCR1A.modify(.{ .COM1B = non_inverting_compare_output }),

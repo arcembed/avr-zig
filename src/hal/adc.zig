@@ -27,8 +27,11 @@ pub fn read(comptime pin: AnalogPin) u16 {
     const channel = comptime platform.analogChannel(pin);
     const gpio_pin = comptime platform.analogDigitalPin(pin);
 
-    gpio.init(gpio_pin, .in);
-    gpio.setPullup(gpio_pin, false);
+    if (gpio_pin) |pin_desc| {
+        gpio.init(pin_desc, .in);
+        gpio.setPullup(pin_desc, false);
+    }
+
     enableDigitalInputDisable(pin);
 
     setChannel(channel);
@@ -53,7 +56,7 @@ fn startConversionConfig() void {
 
 fn resetAdcsrb() void {
     switch (platform.current_board) {
-        .uno => regs.ADC.ADCSRB.modify(.{ .ADTS = 0, .ACME = 0 }),
+        .uno, .nano => regs.ADC.ADCSRB.modify(.{ .ADTS = 0, .ACME = 0 }),
         .mega2560 => regs.ADC.ADCSRB.modify(.{ .ADTS = 0, .MUX5 = 0, .ACME = 0 }),
     }
 }

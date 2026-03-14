@@ -3,12 +3,14 @@ const std = @import("std");
 const config = @import("avr_zig_config");
 
 const uno_board = @import("../board/uno.zig");
+const nano_board = @import("../board/nano.zig");
 const mega_board = @import("../board/mega2560.zig");
 const atmega328p = @import("../mcu/atmega328p.zig");
 const atmega2560 = @import("../mcu/atmega2560.zig");
 
 pub const Board = enum {
     uno,
+    nano,
     mega2560,
 };
 
@@ -19,27 +21,45 @@ pub const current_board: Board = blk: {
         @compileError("avr_zig supports only AVR freestanding targets");
     }
 
-    if (std.mem.eql(u8, builtin.target.cpu.model.name, "atmega328p")) {
+    if (std.mem.eql(u8, config.board_name, "uno")) {
+        requireCpuModel("uno", "atmega328p");
         break :blk .uno;
     }
 
-    if (std.mem.eql(u8, builtin.target.cpu.model.name, "atmega2560")) {
+    if (std.mem.eql(u8, config.board_name, "nano")) {
+        requireCpuModel("nano", "atmega328p");
+        break :blk .nano;
+    }
+
+    if (std.mem.eql(u8, config.board_name, "mega2560")) {
+        requireCpuModel("mega2560", "atmega2560");
         break :blk .mega2560;
     }
 
     @compileError(std.fmt.comptimePrint(
-        "avr_zig supports only ATmega328P and ATmega2560, found '{s}'",
-        .{builtin.target.cpu.model.name},
+        "avr_zig supports only configured boards 'uno', 'nano', and 'mega2560', found '{s}'",
+        .{config.board_name},
     ));
 };
 
+fn requireCpuModel(comptime board_name: []const u8, comptime expected_cpu: []const u8) void {
+    if (!std.mem.eql(u8, builtin.target.cpu.model.name, expected_cpu)) {
+        @compileError(std.fmt.comptimePrint(
+            "avr_zig board '{s}' requires CPU '{s}', found '{s}'",
+            .{ board_name, expected_cpu, builtin.target.cpu.model.name },
+        ));
+    }
+}
+
 pub const board = switch (current_board) {
     .uno => uno_board,
+    .nano => nano_board,
     .mega2560 => mega_board,
 };
 
 pub const mcu = switch (current_board) {
     .uno => atmega328p,
+    .nano => atmega328p,
     .mega2560 => atmega2560,
 };
 
@@ -198,6 +218,19 @@ const UnoAnalogPin = enum {
     A5,
 };
 
+const NanoPin = UnoPin;
+
+const NanoAnalogPin = enum {
+    A0,
+    A1,
+    A2,
+    A3,
+    A4,
+    A5,
+    A6,
+    A7,
+};
+
 const MegaAnalogPin = enum {
     A0,
     A1,
@@ -219,27 +252,29 @@ const MegaAnalogPin = enum {
 
 pub const Pin = switch (current_board) {
     .uno => UnoPin,
+    .nano => NanoPin,
     .mega2560 => MegaPin,
 };
 
 pub const AnalogPin = switch (current_board) {
     .uno => UnoAnalogPin,
+    .nano => NanoAnalogPin,
     .mega2560 => MegaAnalogPin,
 };
 
 pub const spi_pins = switch (current_board) {
-    .uno => .{ .ss = Pin.D10, .mosi = Pin.D11, .miso = Pin.D12, .sck = Pin.D13 },
+    .uno, .nano => .{ .ss = Pin.D10, .mosi = Pin.D11, .miso = Pin.D12, .sck = Pin.D13 },
     .mega2560 => .{ .ss = Pin.D53, .mosi = Pin.D51, .miso = Pin.D50, .sck = Pin.D52 },
 };
 
 pub const i2c_pins = switch (current_board) {
-    .uno => .{ .sda = Pin.A4, .scl = Pin.A5 },
+    .uno, .nano => .{ .sda = Pin.A4, .scl = Pin.A5 },
     .mega2560 => .{ .sda = Pin.D20, .scl = Pin.D21 },
 };
 
 pub fn pinDesc(comptime pin: Pin) PinDesc {
     return switch (current_board) {
-        .uno => switch (pin) {
+        .uno, .nano => switch (pin) {
             .D0 => .{ .port = .D, .bit = 0 },
             .D1 => .{ .port = .D, .bit = 1 },
             .D2 => .{ .port = .D, .bit = 2 },
@@ -346,6 +381,16 @@ pub fn analogChannel(comptime pin: AnalogPin) u5 {
             .A4 => 4,
             .A5 => 5,
         },
+        .nano => switch (pin) {
+            .A0 => 0,
+            .A1 => 1,
+            .A2 => 2,
+            .A3 => 3,
+            .A4 => 4,
+            .A5 => 5,
+            .A6 => 6,
+            .A7 => 7,
+        },
         .mega2560 => switch (pin) {
             .A0 => 0,
             .A1 => 1,
@@ -367,7 +412,7 @@ pub fn analogChannel(comptime pin: AnalogPin) u5 {
     };
 }
 
-pub fn analogDigitalPin(comptime pin: AnalogPin) Pin {
+pub fn analogDigitalPin(comptime pin: AnalogPin) ?Pin {
     return switch (current_board) {
         .uno => switch (pin) {
             .A0 => .A0,
@@ -376,6 +421,16 @@ pub fn analogDigitalPin(comptime pin: AnalogPin) Pin {
             .A3 => .A3,
             .A4 => .A4,
             .A5 => .A5,
+        },
+        .nano => switch (pin) {
+            .A0 => .A0,
+            .A1 => .A1,
+            .A2 => .A2,
+            .A3 => .A3,
+            .A4 => .A4,
+            .A5 => .A5,
+            .A6 => null,
+            .A7 => null,
         },
         .mega2560 => switch (pin) {
             .A0 => .A0,
@@ -401,6 +456,7 @@ pub fn analogDigitalPin(comptime pin: AnalogPin) Pin {
 pub fn analogInputDisable(comptime pin: AnalogPin) AnalogInputDisable {
     return switch (current_board) {
         .uno => .{ .register = .didr0, .bit = @as(u3, @intCast(analogChannel(pin))) },
+        .nano => .{ .register = .didr0, .bit = @as(u3, @intCast(analogChannel(pin))) },
         .mega2560 => blk: {
             const channel = analogChannel(pin);
             if (channel < 8) {
@@ -413,7 +469,7 @@ pub fn analogInputDisable(comptime pin: AnalogPin) AnalogInputDisable {
 
 pub fn pwmChannel(comptime pin: Pin) ?PwmChannel {
     return switch (current_board) {
-        .uno => switch (pin) {
+        .uno, .nano => switch (pin) {
             .D9 => .timer1_a,
             .D10 => .timer1_b,
             .D11 => .timer2_a,
@@ -442,7 +498,7 @@ pub fn pwmChannel(comptime pin: Pin) ?PwmChannel {
 
 pub fn usesReservedTimer0Pwm(comptime pin: Pin) bool {
     return switch (current_board) {
-        .uno => switch (pin) {
+        .uno, .nano => switch (pin) {
             .D5, .D6 => true,
             else => false,
         },
@@ -455,7 +511,7 @@ pub fn usesReservedTimer0Pwm(comptime pin: Pin) bool {
 
 pub fn servoChannel(comptime pin: Pin) ?ServoChannel {
     return switch (current_board) {
-        .uno => switch (pin) {
+        .uno, .nano => switch (pin) {
             .D9 => .timer1_a,
             .D10 => .timer1_b,
             else => null,
@@ -470,7 +526,7 @@ pub fn servoChannel(comptime pin: Pin) ?ServoChannel {
 
 pub fn portInputRegister(comptime port: Port) *volatile u8 {
     return switch (current_board) {
-        .uno => switch (port) {
+        .uno, .nano => switch (port) {
             .B => registers.PORTB.PINB,
             .C => @ptrCast(registers.PORTC.PINC),
             .D => registers.PORTD.PIND,
@@ -494,7 +550,7 @@ pub fn portInputRegister(comptime port: Port) *volatile u8 {
 
 pub fn portDirectionRegister(comptime port: Port) *volatile u8 {
     return switch (current_board) {
-        .uno => switch (port) {
+        .uno, .nano => switch (port) {
             .B => registers.PORTB.DDRB,
             .C => @ptrCast(registers.PORTC.DDRC),
             .D => registers.PORTD.DDRD,
@@ -518,7 +574,7 @@ pub fn portDirectionRegister(comptime port: Port) *volatile u8 {
 
 pub fn portOutputRegister(comptime port: Port) *volatile u8 {
     return switch (current_board) {
-        .uno => switch (port) {
+        .uno, .nano => switch (port) {
             .B => registers.PORTB.PORTB,
             .C => @ptrCast(registers.PORTC.PORTC),
             .D => registers.PORTD.PORTD,

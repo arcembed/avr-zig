@@ -2,6 +2,7 @@ const std = @import("std");
 
 pub const Board = enum {
     uno,
+    nano,
     mega2560,
 };
 
@@ -11,7 +12,7 @@ pub const Spec = struct {
 };
 
 pub fn resolveBoard(b: *std.Build) Board {
-    const value = b.option([]const u8, "board", "Target board: uno or mega2560") orelse "uno";
+    const value = b.option([]const u8, "board", "Target board: uno, nano, or mega2560") orelse "uno";
 
     if (std.mem.eql(u8, value, "uno")) {
         return .uno;
@@ -21,12 +22,25 @@ pub fn resolveBoard(b: *std.Build) Board {
         return .mega2560;
     }
 
-    std.debug.panic("unsupported -Dboard={s}; use 'uno' or 'mega2560'", .{value});
+    if (std.mem.eql(u8, value, "nano")) {
+        return .nano;
+    }
+
+    std.debug.panic("unsupported -Dboard={s}; use 'uno', 'nano', or 'mega2560'", .{value});
 }
 
 pub fn spec(board: Board) Spec {
     return switch (board) {
         .uno => .{
+            .target_query = .{
+                .cpu_arch = .avr,
+                .cpu_model = .{ .explicit = &std.Target.avr.cpu.atmega328p },
+                .os_tag = .freestanding,
+                .abi = .none,
+            },
+            .linker_script = "src/runtime/atmega328p.ld",
+        },
+        .nano => .{
             .target_query = .{
                 .cpu_arch = .avr,
                 .cpu_model = .{ .explicit = &std.Target.avr.cpu.atmega328p },
@@ -71,6 +85,16 @@ pub fn addUploadStep(
             "avrdude",
             "-carduino",
             "-patmega328p",
+            "-D",
+            "-P",
+            tty,
+            b.fmt("-Uflash:w:{s}:e", .{bin_path}),
+        }),
+        .nano => b.addSystemCommand(&.{
+            "avrdude",
+            "-carduino",
+            "-patmega328p",
+            "-b115200",
             "-D",
             "-P",
             tty,
