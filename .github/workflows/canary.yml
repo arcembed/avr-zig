@@ -1,0 +1,19 @@
+name: Canary
+
+on:
+  schedule:
+    - cron: "0 5 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: canary-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  zig:
+    uses: ./.github/workflows/_zig-ci.yml
+    with:
+      zig-version: master

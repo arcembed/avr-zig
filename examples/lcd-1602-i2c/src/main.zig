@@ -13,12 +13,14 @@ var display: Display16x2 = .{};
 
 pub fn main() void {
     uart.init(115200);
-    
+
     display.address = hd44780_i2c.default_address;
     // If you have one with the 0x3F address just use .alternate_address
     if (!display.init()) {
         uart.write("LCD Not found!\n");
-        while (true) { time.sleep(500); }
+        while (true) {
+            time.sleep(500);
+        }
     }
 
     var page: u8 = 0;
