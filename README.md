@@ -45,6 +45,7 @@ Use `avr.drivers.display.seven_segment` for direct-wired 7-segment modules.
 - `FourDigit(...)` handles a multiplexed 4-digit display and exposes `write()`, `showNumber()`, `setDigit()`, `setDecimalPoint()`, `refresh()`, and `refreshFor()`.
 - `Common.cathode` drives lit segments high. `Common.anode` drives lit segments low.
 - The 4-digit helper assumes each digit common pin is wired directly and should be selected with the opposite polarity from the segment pins.
+- For raw 4-digit modules, wire the module's `DIG1..DIG4` select pins to `.d1..d4`.
 
 Typical setup:
 

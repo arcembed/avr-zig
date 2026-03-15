@@ -29,7 +29,7 @@ var display: Display = .{};
 pub fn main() void {
     uart.init(115200);
     uart.write("4-digit 7-segment example\r\n");
-    uart.write("Segments A..G -> D2..D8, DP -> D9, digits 1..4 -> D10..D13\r\n");
+    uart.write("Segments A..G -> D2..D8, DP -> D9, DIG1..DIG4 -> D10..D13\r\n");
     uart.write("Change `common` to `.anode` for common-anode modules\r\n");
 
     display.init();

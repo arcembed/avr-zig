@@ -313,10 +313,10 @@ fn enableDigit(comptime digit_pins: DigitPins4, comptime common: Common, index: 
     const enabled_level = common == .anode;
 
     switch (index & 0x03) {
-        0 => gpio.write(digit_pins.d1, enabled_level),
-        1 => gpio.write(digit_pins.d2, enabled_level),
-        2 => gpio.write(digit_pins.d3, enabled_level),
-        else => gpio.write(digit_pins.d4, enabled_level),
+        0 => gpio.write(digit_pins.d4, enabled_level),
+        1 => gpio.write(digit_pins.d3, enabled_level),
+        2 => gpio.write(digit_pins.d2, enabled_level),
+        else => gpio.write(digit_pins.d1, enabled_level),
     }
 }
 
