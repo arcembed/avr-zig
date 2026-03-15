@@ -16,7 +16,7 @@ defaults:
 jobs:
   discover-examples:
     name: Discover examples
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     outputs:
       examples: ${{ steps.collect.outputs.examples }}
     steps:
@@ -49,7 +49,7 @@ jobs:
 
   fmt:
     name: Fmt check
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
       - uses: actions/checkout@v6
 
@@ -63,7 +63,7 @@ jobs:
 
   check:
     name: Check (${{ matrix.board }})
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     strategy:
       fail-fast: false
       matrix:
@@ -84,7 +84,7 @@ jobs:
 
   examples:
     name: Example ${{ matrix.example }} (${{ matrix.board }})
-    runs-on: ubuntu-latest
+    runs-on: blacksmith-2vcpu-ubuntu-2404
     needs: discover-examples
     if: ${{ needs.discover-examples.outputs.examples != '[]' }}
     strategy:
