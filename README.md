@@ -35,7 +35,7 @@ Timer-backed helpers such as `avr.hal.time.sleep()` automatically provide their 
 
 See the example projects in `examples/` for minimal wrapper `build.zig` files that consume the package-owned firmware flow.
 
-Input handling is split between `avr.hal.gpio` for digital pins and `avr.hal.adc` for blocking 10-bit reads. The Uno target exposes `A0..A5`; the classic Nano target exposes `A0..A7` with `A6/A7` as analog-only pins; the Mega 2560 target exposes `A0..A15`. The repository examples include digital button input, analog input sampling, DHT11 sensor polling, MFRC522 RFID UID reads over SPI, and more.
+Input handling is split between `avr.hal.gpio` for digital pins and `avr.hal.adc` for blocking 10-bit reads. The Uno target exposes `A0..A5`; the classic Nano target exposes `A0..A7` with `A6/A7` as analog-only pins; the Mega 2560 target exposes `A0..A15`. The repository examples include digital button input, analog input sampling, KY-038 analog and digital sound sensing, DHT11 sensor polling, MFRC522 RFID UID reads over SPI, and more.
 
 ## Board Selection
 

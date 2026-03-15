@@ -1,0 +1,14 @@
+.{
+    .name = .ky_038_digital_example,
+    .version = "0.1.0",
+    .fingerprint = 0xfdce7cfab1f4280f,
+    .minimum_zig_version = "0.15.2",
+    .dependencies = .{
+        .avr_zig = .{ .path = "../.." },
+    },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "src",
+    },
+}

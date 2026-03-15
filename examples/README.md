@@ -33,6 +33,8 @@ Available examples:
 - `dht11`
 - `hc-sr04`
 - `i2c-scan`
+- `ky-038-analog`
+- `ky-038-digital`
 - `lcd-1602-i2c`
 - `mfrc522`
 - `pwm-fade`
